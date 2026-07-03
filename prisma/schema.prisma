@@ -12,42 +12,39 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model User {
-  id           String @default(uuid())
-  username     String @unique
-  password     String
+  id        String @id @default(uuid())
+  username  String @unique
+  password  String
+}
+
+model Stock {
+  id      String @id @default(uuid())
+  name    String
+  symbol  String @unique
 }
 
 model Order {
-  id        String      @default(uuid())
-  name      String
-  symbol    String  @unique 
+  id         String @id @default(uuid())
+  userId     String
+  market     String
+  price      Float
+  qty        Int
+  type       String
+  side       String
+  filledQty  Int
+  status     String
+  createdAt  String
 }
 
 model Fill {
-
-  id String @unique
-  userId String
-  market String
-  quantity Int
-  type String
-  side String
-  fillQty Int
-  status String
-  createdAt String
-
-}
-
-model stock {
-
-  id String @unique
-  quantity Int
-  side String
-  type String
-  userId String
-  price Float
-  asset String
-  originalId String
-  createdAt String
+  id              String @id @default(uuid())
+  userId          String
+  market          String
+  price           Float
+  qty             Int
+  side            String
+  type            String
+  originalOrderId String
+  createdAt       String
 }
