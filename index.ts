@@ -22,7 +22,7 @@ const BALANCES:any ={
 
 };
 
-const ORDER_BOOK={
+const ORDER_BOOK: any={
 sol:{
     bids:[],
      ask:[]
@@ -163,27 +163,146 @@ else if(side=="sell"){
 }) 
 
 
-app.get("/order/:orderId",authMiddleware,(req,res)=>{
+app.get("/order/:orderId",authMiddleware,async(req:any,res)=>{
+
+ const userId=req.userId;
+ const {orderId}= req.params;
+
+ const order= await prisma.order.findUnique({
+    where:{
+        orderId
+    }
+ })
+ if(!order)
+{
+    return res.status(404).json({
+        message: "order not found"
+    })
+}
+
+if(order.userId ===userId){
+
+
+return res.status(200).json({
+    order
+})
+}
+res.status(403).json({
+    message: "you are not the owner"
+})
 
 })
-app.delete("/order/:orderId",authMiddleware,(req,res)=>{
+
+app.delete("/order/:orderId",authMiddleware,async(req:any,res)=>{
+
+    const userId=req.userId;
+   const {orderId}=req.params;
+    const order= await prisma.order.findUnique({
+     where:{
+       id: orderId
+     }
+    })
+    if(!order){
+        return res.status(404).json({
+            message: "order not found"
+        })
+    }
+    if(order.userId== userId){
+        const balance = BALANCES[userId];
+
+if (order.side === "buy") {
+    const total = order.price * order.qty;
+
+    balance.usd.available += total;
+    balance.usd.locked -= total;
+} else if (order.side === "sell") {
+    balance.sol.available += order.qty;
+    balance.sol.locked -= order.qty;
+}
+       const Delete=await  prisma.order.delete({
+       
+    where:{
+orderId
+    } 
+       })
+       return res.status(200).json({
+        message: "order deleted successfully"
+       })
+    }
+   return res.status(403).json({
+message :"wrong userId"
+    })
 
 })
+
 app.get("/depth/:symbol",(req,res)=>{
 
+    const { symbol }= req.params ;
+    const depth=ORDER_BOOK[symbol];
+  
+    if(!depth){
+        return res.status(404).json({
+            message: "Market not found"
+        })
+    }
+    return res.json({
+        depth
+    })
 })
 
-app.get("/order",authMiddleware,(req,res)=>{
+app.get("/order",authMiddleware, async(req:any,res)=>{
+   const userId=req.userId;
+
+ const order= await prisma.order.findMany({
+    where:{
+        userId
+    }
+ });
+
+ return res.status(200).json({
+    order
+ })
 
 })
-app.get("/fills",authMiddleware,(req,res)=>{
+
+
+app.get("/fills",authMiddleware,async(req:any,res)=>{
+   const userId=req.userId;
+
+   const fill= await prisma.fill.findMany({
+    where:{
+        userId
+    }
+   })
+   return res.status(200).json({
+    fill
+   })
 
 })
-app.get("/balance/usd",authMiddleware,(req,res)=>{
+app.get("/balance/usd",authMiddleware,(req:any,res)=>{
 
+    const userId=req.userId;
+    const balance=BALANCES[userId];
+    if(balance){
+      return  res.status(200).json({
+     usd:balance.usd
+        })
+    }
+   return res.status(404).json({
+        message: "balance not exist"
+    })
 })
-app.get("/balance",authMiddleware,(req,res)=>{
-
+app.get("/balance",authMiddleware,(req:any,res)=>{
+   const userId= req.userId;
+   const balance=BALANCES[userId];
+   if(balance){
+  return  res.status(200).json({
+        balance
+    })
+   }
+   return res.status(404).json({
+        message: "balance not exist"
+    })
 })
 
 app.listen(3000)
