@@ -16,21 +16,21 @@ for(let i=0;i<ask.length;i++){
 
         order.qty -=tradedQty;
         sellOrder.qty-= tradedQty;
-         if(sellOrder.qty ==0){
+         if(sellOrder.qty ===0){
         ask.splice(i,1);
         i--;
     }
   
-    if(order.qty== 0){
+    if(order.qty=== 0){
         break;
     }
     }
-      if(order.qty >0){
-        ORDER_BOOK.sol.bids.push(order)
-    }
+    
    
 }
-
+  if(order.qty >0){
+        ORDER_BOOK[order.market].bids.push(order)
+    }
     }
     else{
 
@@ -45,17 +45,17 @@ for(let i=0;i<ask.length;i++){
 
         order.qty -=tradedQty;
         buyOrder.qty -= tradedQty;
-        if(buyOrder.qty ==0){
+        if(buyOrder.qty ===0){
             bids.splice(i,1);
             i--;
         }
-        if(order.qty==0){
+        if(order.qty===0){
             break;
         }
     }
    }
    if(order.qty >0){
-    ORDER_BOOK[order.market].sol.ask.push(order)
+    ORDER_BOOK[order.market].ask.push(order)
    }
     }
 
