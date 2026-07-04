@@ -22,7 +22,7 @@ const BALANCES:any ={
 
 };
 
-const ORDER_BOOK: any={
+export const ORDER_BOOK: any={
 sol:{
     bids:[],
      ask:[]
