@@ -7,7 +7,7 @@ import { authMiddleware } from "./middleware";
 const app=express();
 app.use(express.json());
 
-const BALANCES:any ={
+export const BALANCES:any ={
 
     "user1": {
         usd: {
