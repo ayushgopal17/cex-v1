@@ -34,7 +34,7 @@ model Order {
   side       String
   filledQty  Int
   status     String
-  createdAt  String
+  createdAt  DateTime @default(now())
 }
 
 model Fill {
@@ -46,5 +46,5 @@ model Fill {
   side            String
   type            String
   originalOrderId String
-  createdAt       String
+  createdAt       DateTime @default(now())
 }

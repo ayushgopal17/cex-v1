@@ -1,26 +1,15 @@
 import express from "express"
 
-import prisma from "./prisma.config";
+import prisma from "./db";
 import jwt from "jsonwebtoken"
 import { authMiddleware } from "./middleware";
+import { matchOrder } from "./engine";
 
 const app=express();
 app.use(express.json());
 
-export const BALANCES:any ={
+   export const BALANCES:any = {};
 
-    "user1": {
-        usd: {
-            available: 10000,
-            locked: 0
-        },
-        sol: {
-            available: 10,
-            locked: 0
-        }
-    }
-
-};
 
 export const ORDER_BOOK: any={
 sol:{
@@ -54,6 +43,16 @@ const user= await prisma.user.create({
         password: password
     }
 })
+BALANCES[user.id] = {
+    usd: {
+        available: 10000,
+        locked: 0
+    },
+    sol: {
+        available: 10,
+        locked: 0
+    }
+};
  return res.status(200).json({
    message:  "Signined up successfully"
 })
@@ -115,6 +114,7 @@ balance.usd.locked += total;
     }
     
 })
+await matchOrder(order)
 
 return res.status(201).json({
     message: "order created successfully"
@@ -137,7 +137,7 @@ else if(side=="sell"){
         balance.sol.locked +=qty;
 
 
-        await prisma.order.create({
+     const order=   await prisma.order.create({
             data:{
                 userId,
                 market,
@@ -149,6 +149,9 @@ else if(side=="sell"){
                 status: "OPEN"
             }
         });
+        await matchOrder(
+            order
+        );
        return res.status(201).json({
             message: "order created successfully"
         })
