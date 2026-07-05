@@ -17,7 +17,72 @@ for(let i=0;i<ask.length;i++){
 
     if(sellOrder.price <=order.price){
         
-      const tradedQty=Math.min(order.qty,sellOrder.qty)
+  const tradedQty=Math.min(order.qty,sellOrder.qty)
+
+  const updatedSellOrder = await prisma.order.update({
+    where:{
+        id: sellOrder.id
+    },
+    data:{
+        filledQty:{
+            increment: tradedQty
+        }
+    }
+});
+
+if(updatedSellOrder.filledQty === updatedSellOrder.qty){
+    await prisma.order.update({
+        where:{
+            id: sellOrder.id
+        },
+        data:{
+            status:"FILLED"
+        }
+    });
+}
+else{
+    await prisma.order.update({
+        where:{
+            id: sellOrder.id
+        },
+        data:{
+            status:"PARTIALLY_FILLED"
+        }
+    });
+}
+
+  const updatedOrder = await prisma.order.update({
+    where: {
+        id: order.id
+    },
+    data: {
+        filledQty: {
+            increment: tradedQty
+        }
+    }
+});
+
+if(updatedOrder.filledQty === updatedOrder.qty){
+    await prisma.order.update({
+        where:{
+            id: order.id
+        },
+        data:{
+            status:"FILLED"
+        }
+    });
+}
+else{
+    await prisma.order.update({
+        where:{
+            id: order.id
+        },
+        data:{
+            status:"PARTIALLY_FILLED"
+        }
+    });
+}
+
 
     const tradeValue= tradedQty * sellOrder.price;
 
@@ -72,9 +137,72 @@ for(let i=0;i<ask.length;i++){
     const buyOrder= bids[i];
 
     if(buyOrder.price >=order.price){
-       
-        const tradedQty= Math.min(order.qty,buyOrder.qty);
+ const tradedQty= Math.min(order.qty,buyOrder.qty);
+   
 
+ const updatedOrder = await prisma.order.update({
+    where:{
+        id: order.id
+    },
+    data:{
+        filledQty:{
+            increment: tradedQty
+        }
+    }
+});
+
+if(updatedOrder.filledQty === updatedOrder.qty){
+    await prisma.order.update({
+        where:{
+            id: order.id
+        },
+        data:{
+            status: "FILLED"
+        }
+    });
+}
+else{
+    await prisma.order.update({
+        where:{
+            id: order.id
+        },
+        data:{
+            status: "PARTIALLY_FILLED"
+        }
+    });
+}
+
+const updatedBuyOrder = await prisma.order.update({
+    where:{
+        id: buyOrder.id
+    },
+    data:{
+        filledQty:{
+            increment: tradedQty
+        }
+    }
+});
+
+if(updatedBuyOrder.filledQty === updatedBuyOrder.qty){
+    await prisma.order.update({
+        where:{
+            id: buyOrder.id
+        },
+        data:{
+            status:"FILLED"
+        }
+    });
+}
+else{
+    await prisma.order.update({
+        where:{
+            id: buyOrder.id
+        },
+        data:{
+            status:"PARTIALLY_FILLED"
+        }
+    });
+}
         const tradeValue = tradedQty *buyOrder.price;
 
         const buyerBalance= BALANCES[buyOrder.userId];

@@ -8,7 +8,7 @@ import { matchOrder } from "./engine";
 const app=express();
 app.use(express.json());
 
-   export const BALANCES:any = {};
+ export const BALANCES:any = {};
 
 
 export const ORDER_BOOK: any={
